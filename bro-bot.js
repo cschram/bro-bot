@@ -1,22 +1,28 @@
-﻿"use strict";
-var console = require("console"),
+﻿var console = require("console"),
     vm = require("vm"),
-
     irc = require("irc"),
     CouchClient = require("couch-client"),
-
     config = require("./bot-config");
 
-var VERSION = "Bro-Bot Version 0.3",
+(function () {
+"use strict";
+
+var VERSION = "Bro-Bot Version 0.3.2",
     DB = CouchClient("http://127.0.0.1:5984/bro-bot/");
     
+// Retrieve the logs from the database then start the bot
 DB.get("logs", function (err, doc) {
   if (err) {
-    throw err;
+    throw "Cannot load logs: " + err;
   }
   
   var logs = doc,
-      logsChanged = false;
+      logsChanged = false,
+      client,
+      chatCount = 0;
+      
+  // Handle log saving
+  // config.loginterval determines how often to save logs to the database
   function saveLogs() {
     if (logsChanged) {
       DB.save(logs, function (e, d) {
@@ -25,47 +31,48 @@ DB.get("logs", function (err, doc) {
         }
         logs = d;
         logsChanged = false;
-        console.log("Saved logs.");
       });
     }
-    setTimeout(saveLogs, 60000);
+    setTimeout(saveLogs, config.loginterval);
   }
-  setTimeout(saveLogs, 60000);
+  setTimeout(saveLogs, config.loginterval);
   
-  var client = new irc.Client("irc.freenode.net", "bro-bot", {
+  // Create IRC Client
+  client = new irc.Client("irc.freenode.net", "bro-bot", {
     username : "bro-bot",
-    channels : ["#vidyadev"]
+    channels : [config.channel]
   });
   
-  var chatCount = 0;
+  // Ensure flood control so the bot doesn't spam
+  // (Don't want to get k-lined!)
   function clearChatCount() {
     chatCount = 0;
     setTimeout(clearChatCount, 1000);
   }
   setTimeout(clearChatCount, 1000);
   
-  function say () {
-    if (chatCount < 5) {
-      if (arguments.length === 1) {
-        logChat("[bro-bot] " + arguments[0]);
-        client.say("#vidyadev", arguments[0]);
-      } else if (arguments.length === 2) {
-        logChat("[bro-bot] " + arguments[0] + ": " + arguments[1]);
-        client.say(arguments[0], arguments[1]);
-      }
-      chatCount++;
+  // Log chat
+  function logChat(msg, noTimestamp) {
+    if (!noTimestamp) {
+      msg = "<small>" + (new Date()).toUTCString() + "</small> " + msg;
     }
-  };
-  
-  function logChat(msg) {
     logs.chat.push(msg);
     console.log(msg);
     logsChanged = true;
   }
+  // Log errors
   function logError(msg) {
     logs.error.push(msg);
     console.error(msg);
     logsChanged = true;
+  }
+  
+  function say (msg) {
+    if (chatCount < 5) { // flood protection
+      logChat("<b>[bro-bot]></b> " + msg);
+      client.say(config.channel, msg);
+      chatCount += 1; // flood protection
+    }
   }
 
   client.addListener("error", function (error) {
@@ -73,87 +80,92 @@ DB.get("logs", function (err, doc) {
   });
   
   client.addListener("motd", function (motd) {
-    console.log("Connected to Freenode");
+    logChat("<hr>", true);
+    logChat("<b><i>Connected to Freenode</i></b>");
     client.say("nickserv", "identify " + config.password);
+    
   });
 
-  client.addListener("join#vidyadev", function (nick) {
-    logChat("[" + nick + "] joined.");
+  client.addListener("join" + config.channel, function (nick) {
+    logChat("<b>[" + nick + "]</b> joined.");
   });
 
-  client.addListener("part#vidyadev", function (nick, reason) {
-    logChat("[" + nick + "] Left. (" + reason + ")");
+  client.addListener("part" + config.channel, function (nick, reason) {
+    logChat("<b>[" + nick + "]</b> Left. (" + reason + ")");
   });
 
-  client.addListener("message#vidyadev", function (nick, msg) {
-    logChat("[" + nick + "] " + msg);
+  client.addListener("message" + config.channel, function (nick, msg) {
+    logChat("<b>[" + nick + "]</b> " + msg);
     
     if (msg[0] === "?" && msg.length > 1) {
       var args = msg.split(" "),
           command = args.shift().substr(1),
-          reply;
+          prefix;
 
       if (args[args.length - 2] === "@") {
-        reply = args.pop() + ": ";
+        prefix = args.pop() + ": ";
         args.pop();
       } else if (args[args.length - 1] === "@") {
-        reply = "";
+        prefix = "";
       } else {
-        reply = nick + ": ";
+        prefix = nick + ": ";
       }
 
       switch (command) {
       case "version":
-        reply += VERSION;
+        say(prefix + VERSION);
         break;
-      case "google":
-        reply += "http://www.google.com/#q=" + args.join("+");
+      case "search":
+        say(prefix + "http://google.com/search?q=" + args.join("+") + "+site:http://vidyadev.org/");
         break;
-      case "eval":
+      case "forums":
+        if (args.length === 0) {
+          say(prefix + "http://vidyadev.org/forums/");
+        } else {
+          say(prefix + "http://google.com/search?q=" + args.join("+") + "+site:http://vidyadev.org/forums/");
+        }
+        break;
+      case "wiki":
+        if (args.length === 0) {
+          say(prefix + "http://vidyadev.org/wiki/");
+        } else {
+        say(prefix + "http://google.com/search?q=" + args.join("+") + "+site:http://vidyadev.org/wiki/");
+        }
+        break;
+      case "logs":
+        if (args.length === 0) {
+          say(prefix + "http://irclogs.vidyadev.org/");
+        } else {
+          say(prefix + "http://irclogs.vidyadev.org/search/" + args.join("+"));
+        }
+        break;
+      case "js":
         var code = args.join(" ");
         code.replace(/while *\( *([\s\S]+?) *\) *\n* *\{/g, function (match, val) {
           var c = "__lc_" + String(Math.random() * 1000).substr(0, 3) + "_", n;
-          n = "var "+c+"=0;"+match+""+c+"++;if("+c+">100)break;";
+          n = "var "+c+"=0;"+match+""+c+"++;if("+c+"]100)break;";
           code = code.replace(match, n);
-        });        
+        });
         try {
-          reply += vm.createScript(code).runInNewContext({});
+          say(prefix + vm.createScript(code).runInNewContext({}));
         } catch (e) {
-          reply += "Error: " + e;
+          say(prefix + "Error: " + e);
         }
-        break;
-      case "leave-message":
-        var usr = args.shift();
-        if (users.contains(usr)) {
-          reply += "User is already online!";
-        } else {
-          msg = [nick, args.join(" ")];
-          if (typeof messages[usr] === "array") {
-            messages[usr][messages[usr].length] = msg;
-          } else {
-            messages[usr] = [msg];
-          }
-          reply += "Left a message for " + usr + " when he/she logs on again.";
-        }
-        break;
-      case "zalgo":
-        reply = "H̹̙̦̮͉̩̗̗ͧ̇̏̊̾Eͨ͆͒̆ͮ̃͏̷̮̣̫̤̣ ̵̞̹̻̀̉̓ͬ͑͡ͅCͯ̂͐͏̨̛͔̦̟͈̻O̜͎͍͙͚̬̝̣̽ͮ͐͗̀ͤ̍̀͢M̴̡̲̭͍͇̼̟̯̦̉̒͠Ḛ̛̙̞̪̗ͥͤͩ̾͑̔͐ͅṮ̴̷̷̗̼͍̿̿̓̽͐H̙̙̔̄͜";
         break;
       case "lmgtfy":
-        reply += "http://lmgtfy.com/?q=" + args.join("+");
+        say(prefix + "http://lmgtfy.com/?q=" + args.join("+"));
         break;
-      default:
-        reply = "";
+      case "help":
+        say(prefix + "Current commands are 'version', 'search', 'forums', 'wiki', 'logs', 'js', and 'lmgtfy'.");
         break;
-      }
-      if (reply != "") {
-        say(reply);
+        
+      case "zalgo":
+        say("H̹̙̦̮͉̩̗̗ͧ̇̏̊̾Eͨ͆͒̆ͮ̃͏̷̮̣̫̤̣ ̵̞̹̻̀̉̓ͬ͑͡ͅCͯ̂͐͏̨̛͔̦̟͈̻O̜͎͍͙͚̬̝̣̽ͮ͐͗̀ͤ̍̀͢M̴̡̲̭͍͇̼̟̯̦̉̒͠Ḛ̛̙̞̪̗ͥͤͩ̾͑̔͐ͅṮ̴̷̷̗̼͍̿̿̓̽͐H̙̙̔̄͜");
+        break;
       }
     }
   });
-  
-  process.on("exit", function () {
-    say("Bye fogots");
-  });
 
 });
+
+}());
