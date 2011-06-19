@@ -1,14 +1,46 @@
-﻿var console = require("console"),
-    vm = require("vm"),
-    irc = require("irc"),
+﻿var console     = require("console"),
+    vm          = require("vm"),
+    irc         = require("irc"),
     CouchClient = require("couch-client"),
-    config = require("./bot-config");
+    config      = require("./bot-config");
 
 (function () {
 "use strict";
 
-var VERSION = "Bro-Bot Version 0.3.2",
-    DB = CouchClient("http://127.0.0.1:5984/bro-bot/");
+var VERSION = "Bro-Bot Version 0.3.4",
+    DB      = CouchClient("http://127.0.0.1:5984/bro-bot/"),
+    JSENV   = {
+      peen : function (len) {
+        if (typeof len == "undefined") {
+          len = 4;
+        }
+        
+        if (typeof len === "string") {
+          len = len.toLowerCase();
+          if (len === "poisonarms") {
+            return "8=D";
+          } else if (len === "abjorn") {
+            return JSENV.peen(100);
+          } else if (len === "chuck-norris") {
+            return "(('))";
+          } else if (len === "Haz") {
+            return "8===>~~<===8";
+          } else {
+            return "wat";
+          }
+        } else {
+          if (len > 100) {
+            return "You wish, buddy.";
+          }
+          var res = "8";
+          for (var i = 0; i < len; i++) {
+            res = res + "=";
+          }
+          res = res + "D";
+          return res;
+        }
+      }
+    };
     
 // Retrieve the logs from the database then start the bot
 DB.get("logs", function (err, doc) {
@@ -16,10 +48,10 @@ DB.get("logs", function (err, doc) {
     throw "Cannot load logs: " + err;
   }
   
-  var logs = doc,
+  var logs        = doc,
       logsChanged = false,
-      client,
-      chatCount = 0;
+      chatCount   = 0,
+      client;
       
   // Handle log saving
   // config.loginterval determines how often to save logs to the database
@@ -83,7 +115,7 @@ DB.get("logs", function (err, doc) {
     logChat("<hr>", true);
     logChat("<b><i>Connected to Freenode</i></b>");
     client.say("nickserv", "identify " + config.password);
-    
+    say("I'm fucking watching you guys.");
   });
 
   client.addListener("join" + config.channel, function (nick) {
@@ -147,7 +179,9 @@ DB.get("logs", function (err, doc) {
           code = code.replace(match, n);
         });
         try {
-          say(prefix + vm.createScript(code).runInNewContext({}));
+          say(prefix + vm.createScript(code).runInNewContext(
+            Object.create(JSENV)
+          ));
         } catch (e) {
           say(prefix + "Error: " + e);
         }
@@ -161,6 +195,12 @@ DB.get("logs", function (err, doc) {
         
       case "zalgo":
         say("H̹̙̦̮͉̩̗̗ͧ̇̏̊̾Eͨ͆͒̆ͮ̃͏̷̮̣̫̤̣ ̵̞̹̻̀̉̓ͬ͑͡ͅCͯ̂͐͏̨̛͔̦̟͈̻O̜͎͍͙͚̬̝̣̽ͮ͐͗̀ͤ̍̀͢M̴̡̲̭͍͇̼̟̯̦̉̒͠Ḛ̛̙̞̪̗ͥͤͩ̾͑̔͐ͅṮ̴̷̷̗̼͍̿̿̓̽͐H̙̙̔̄͜");
+        break;
+      case "flip":
+        say("(╯‵Д′)╯彡┻━┻)ﾟДﾟ)彡☆");
+        break;
+      case "cthulhu":
+        say("P̷̹͍͙̬̗̠̗͍̯ͭ̅̓͛̐͊͋̉͝ĥ̵̡̢̪̜̙̣̬ͥ͆͂͛̌ͫ̾ͬ'̝̥̻̮̻̳̮͚̔̉̍ͥ̏̇̈́͞n̜̜͕̿͒́ͧͮ̎͘g̨̻̰͖̮ͣ̽̒͂ͯ̉̀͜l̰̞̦͈̪̣̙̐̈́ͭ̉ͯ͌u̵̲͍̗̪̓ͦͩ̂́͆͗͘i͖̜͚̦̗ͤͨ̊ͧ̀̓̓ ̩̳̙̞̭͒͊̓ͣ̿̾͠͠m͂̊̃̅͏̻̹̰̲͚̰̕g̡̺̜̭̣̏̓ͭ̇͛͋ͫͨ́͞lͪͨ̆ͣ͏̜͔̝̱̭̦̰ẉ̴̘̪̙̹͖̤̭͗̿ͤ̉ͅ'̢̞̪̪̤͕̩͐̎́ņ̵̳̟͕̗̫̒͋ͭ̑̚ͅa̮̯̗̙̜̻̻̣̿̒̒̓̑͆̄͂͡f͓̖̺̭̯̤̋͒ͩ̈͛͗̕͡h̻̖̹͓̯̘̟̱̟ͧͬ ̭̣̝̹̰͛̐ͩ̅͐͆͒̿͠C͙̦̥̬ͪ̒ͫ͐̄͜͟͠ṱ̷͖͇͈ͫͫ͋̉̾͋͐͆h̭͓̥̲̣̤̍͂͆́̈́ͫ̚u͔̙̩͇͕̲ͦͮ́͐ͭ̌͘ḻ̷̰̣̗̺̹̫̱̀͐̀̐̆ͤh͒̿̂ͪ͋͂͞͏̹͎͖͓̣̟̭͖͕u͊̌̎͋͛͆ͤ̋̆͟͡͏̯̗͖͓̗ ̜̩̗̜̲͊ͤ̉R̩̟̯̲ͭ̽̄́̽'̩̰̥͕͖̞̈́̄͛̄͂̉̕͠ͅl̝ͥͧy̴̼̘͙̽̈́̒ͩ̚̚̕͝ȩ͕̹͔̬̺͚̣̓͗ͥ̑ͣͤͧ́ḩ̰̪̜̦̼̭̯̮̀̀ͪ ̢̡̘͓̫̠̼̖͍̺̲͐̋̿ͬ̇̿͌ͫw̢̘̟̭̭̬̄ͤ̉ͦͮͧ́͝g̨̝̦͔͔̠̦̪ͧ̽͌ͧ̂͟͠ͅa̴̡̻̱̍ͩ̌̔̀ͅĥ̻͖̫̤͕̝͉̣ͤ̓ͩ͟ͅ'͈̭̤͍̻͔̼̟̘̓̐̀͘n̷̼͔̘̱͔̯̘̜̾̀͊͋̆̉͝a̞ͬͫ͌͐͂̀͒̀̕ĝ̦̣͈͚̦̝̜ͪl̫͚͛ͩ̈́̍́͞ ̬̗̜̗̞̘ͭ̍͡͠͝f̡̘̙̊̂ͥ̑͑̈̔̿͠h̵̠͓̙̦̹̝ͩ̿ͫ̐̂̄ͥͅt̵̻͓̠̰̖̖ͤͥ̂ͩͬ̾̚̕͝a̙͕̩͖̳̫̩͚ͪ͒̋ͩ̀g̞̱̲̔n̓̓͏̩̳̦ͅ");
         break;
       }
     }
