@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 ﻿var console = require("console"),
+=======
+var console = require("console"),
+>>>>>>> a425f4e57d4ea9771d4a819695c4bacd246c0fd9
     vm      = require("vm"),
     irc     = require("irc"),
     Sofa    = require("sofa"),
@@ -308,6 +312,7 @@ DB.get("logs", function (doc) {
           say(prefix + "http://www.sfml-dev.org/");
         } else {
           say(prefix + "http://google.com/?q=" + args.join("+") + "+site:http://www.sfml-dev.org/documentation/1.6/");
+<<<<<<< HEAD
         }
         break;
       
@@ -319,6 +324,19 @@ DB.get("logs", function (doc) {
           say(prefix + "http://google.com/?q=" + args.join("+") + "+site:http://www.boost.org/doc/libs/1_46_1/");
         }
         break;
+=======
+        }
+        break;
+      
+      // Search the Boost Docs
+      case "boost":
+        if (args.length === 0) {
+          say(prefix + "http://www.boost.org/");
+        } else {
+          say(prefix + "http://google.com/?q=" + args.join("+") + "+site:http://www.boost.org/doc/libs/1_46_1/");
+        }
+        break;
+>>>>>>> a425f4e57d4ea9771d4a819695c4bacd246c0fd9
         
       // Search the IRC Logs
       case "logs":
@@ -331,17 +349,26 @@ DB.get("logs", function (doc) {
         
       // Run a JavaScript Statement
       case "js":
+<<<<<<< HEAD
         var code = removeComments(args.join(" ")),
             doRun = true;
         if (code.indexOf("eval") > -1) {
           say(prefix + "Fuck off with your eval.");
           doRun = false;
         }
+=======
+        var code = args.join(" "),
+            doRun = true;
+>>>>>>> a425f4e57d4ea9771d4a819695c4bacd246c0fd9
         if (code.match(/while *\( *([\s\S]+?) *\)/g)) {
           if (code.match(/while *\( *([\s\S]+?) *\) *\n* *\{/g)) {
             code.replace(/while *\( *([\s\S]+?) *\) *\n* *\{/g, function (match, val) {
               var c = "__lc_" + String(Math.random() * 1000).substr(0, 3) + "_", n;
+<<<<<<< HEAD
               n = "var "+c+"=0;"+match+""+c+"++;if("+c+">100)break;";
+=======
+              n = "var "+c+"=0;"+match+""+c+"++;if("+c+"]100)break;";
+>>>>>>> a425f4e57d4ea9771d4a819695c4bacd246c0fd9
               code = code.replace(match, n);
             });
           } else {
@@ -353,7 +380,11 @@ DB.get("logs", function (doc) {
           if (code.match(/for *\( *([\s\S]+?) *\) *\n* *\{/g)) {
             code.replace(/for *\( *([\s\S]+?) *\) *\n* *\{/g, function (match, val) {
               var c = "__lc_" + String(Math.random() * 1000).substr(0, 3) + "_", n;
+<<<<<<< HEAD
               n = "var "+c+"=0;"+match+""+c+"++;if("+c+">100)break;";
+=======
+              n = "var "+c+"=0;"+match+""+c+"++;if("+c+"]100)break;";
+>>>>>>> a425f4e57d4ea9771d4a819695c4bacd246c0fd9
               code = code.replace(match, n);
             });
           } else {
@@ -463,9 +494,15 @@ DB.get("logs", function (doc) {
       // Special commands OMG
       case "zalgo":
         if (toAnotherUser) {
+<<<<<<< HEAD
           say(prefix + "H̜͇̹̜̦ͥ̿͒̈͆͌͛̅̔ͥ̊ͧͭ̇̄̓̚̚̕Ȩ̶̶͕͉̙͔̥͎͉̘̟̃̇̆̿̔ͭ̆̔̍͒͛͊ͮ͢ͅ ͤͣ̎̇̉̑ͬ͌͗̏̽̑ͨ̀͒҉̯͉̰̗͚͉̱̟͈͇̮̼̜̰͟͟ͅC̵̞̤̟͈̺̰͇̥͎̤͖̣̻̺̠̃͒́̂̀̿͋͌̆ͥ͌̒̑ͅO̢̰̩͉̫͉̺̼͇̻̯̥̱̙̭̼̊ͭͪ͌ͥ͒̆͆ͯ̿̆̆̚͟͞M̢͈̜̺̺ͤ̃̎ͥͨ̈́ͩ͗̿͊ͪ͗̔ͬ̾̓̊̚E̸̸͉̬͖̩͔̼͔̩̗̝͙̼͕̪̜̺͓͑͛̌̏͊͢͝͠Ţ̵̵̖̘̤͈̬͕̫̘̠̩̝̼̑̊̇͛͋Ḧ̴̸̢͓̯̖̟̙̘̣̳̮̤̙̱͓̦́ͦͪ̍ͬ̽̃͗̏̑");
         } else {
           say("H̜͇̹̜̦ͥ̿͒̈͆͌͛̅̔ͥ̊ͧͭ̇̄̓̚̚̕Ȩ̶̶͕͉̙͔̥͎͉̘̟̃̇̆̿̔ͭ̆̔̍͒͛͊ͮ͢ͅ ͤͣ̎̇̉̑ͬ͌͗̏̽̑ͨ̀͒҉̯͉̰̗͚͉̱̟͈͇̮̼̜̰͟͟ͅC̵̞̤̟͈̺̰͇̥͎̤͖̣̻̺̠̃͒́̂̀̿͋͌̆ͥ͌̒̑ͅO̢̰̩͉̫͉̺̼͇̻̯̥̱̙̭̼̊ͭͪ͌ͥ͒̆͆ͯ̿̆̆̚͟͞M̢͈̜̺̺ͤ̃̎ͥͨ̈́ͩ͗̿͊ͪ͗̔ͬ̾̓̊̚E̸̸͉̬͖̩͔̼͔̩̗̝͙̼͕̪̜̺͓͑͛̌̏͊͢͝͠Ţ̵̵̖̘̤͈̬͕̫̘̠̩̝̼̑̊̇͛͋Ḧ̴̸̢͓̯̖̟̙̘̣̳̮̤̙̱͓̦́ͦͪ̍ͬ̽̃͗̏̑");
+=======
+          say(prefix + "H̜͇̹̜̦ͥ̿͒̈͆͌͛̅̔ͥ̊ͧͭ̇̄̓̚̚̕Ȩ̶̶͕͉̙͔̥͎͉̘̟̃̇̆̿̔ͭ̆̔̍͒͛͊ͮ͢ͅ ͤͣ̎̇̉̑ͬ͌͗̏̽̑ͨ̀͒҉̯͉̰̗͚͉̱̟͈͇̮̼̜̰͟͟ͅC̵̞̤̟͈̺̰͇̥͎̤͖̣̻̺̠̃͒́̂̀̿͋͌̆ͥ͌̒̑ͅO̢̰̩͉̫͉̺̼͇̻̯̥̱̙̭̼̊ͭͪ͌ͥ͒̆͆ͯ̿̆̆̚͟͞M̢͈̜̺̺ͤ̃̎ͥͨ̈́ͩ͗̿͊ͪ͗̔ͬ̾̓̊̚E̸̸͉̬͖̩͔̼͔̩̗̝͙̼͕̪̜̺͓͑͛̌̏͊͢͝͠Ţ̵̵̖̘̤͈̬͕̫̘̠̩̝̼̑̊̇͛͋Ḧ̴̸̢͓̯̖̟̙̘̣̳̮̤̙̱͓̦́ͦͪ̍ͬ̽̃͗̏̑");
+        } else {
+          say("H̜͇̹̜̦ͥ̿͒̈͆͌͛̅̔ͥ̊ͧͭ̇̄̓̚̚̕Ȩ̶̶͕͉̙͔̥͎͉̘̟̃̇̆̿̔ͭ̆̔̍͒͛͊ͮ͢ͅ ͤͣ̎̇̉̑ͬ͌͗̏̽̑ͨ̀͒҉̯͉̰̗͚͉̱̟͈͇̮̼̜̰͟͟ͅC̵̞̤̟͈̺̰͇̥͎̤͖̣̻̺̠̃͒́̂̀̿͋͌̆ͥ͌̒̑ͅO̢̰̩͉̫͉̺̼͇̻̯̥̱̙̭̼̊ͭͪ͌ͥ͒̆͆ͯ̿̆̆̚͟͞M̢͈̜̺̺ͤ̃̎ͥͨ̈́ͩ͗̿͊ͪ͗̔ͬ̾̓̊̚E̸̸͉̬͖̩͔̼͔̩̗̝͙̼͕̪̜̺͓͑͛̌̏͊͢͝͠Ţ̵̵̖̘̤͈̬͕̫̘̠̩̝̼̑̊̇͛͋Ḧ̴̸̢͓̯̖̟̙̘̣̳̮̤̙̱͓̦́ͦͪ̍ͬ̽̃͗̏̑");
+>>>>>>> a425f4e57d4ea9771d4a819695c4bacd246c0fd9
         }
         break;
       case "flip":
@@ -477,9 +514,20 @@ DB.get("logs", function (doc) {
         break;
       case "cthulhu":
         if (toAnotherUser) {
+<<<<<<< HEAD
           say(prefix + "P̷̹͍͙̬̗̠̗͍̯ͭ̅̓͛̐͊͋̉͝ĥ̵̡̢̪̜̙̣̬ͥ͆͂͛̌ͫ̾ͬ'̝̥̻̮̻̳̮͚̔̉̍ͥ̏̇̈́͞n̜̜͕̿͒́ͧͮ̎͘g̨̻̰͖̮ͣ̽̒͂ͯ̉̀͜l̰̞̦͈̪̣̙̐̈́ͭ̉ͯ͌u̵̲͍̗̪̓ͦͩ̂́͆͗͘i͖̜͚̦̗ͤͨ̊ͧ̀̓̓ ̩̳̙̞̭͒͊̓ͣ̿̾͠͠m͂̊̃̅͏̻̹̰̲͚̰̕g̡̺̜̭̣̏̓ͭ̇͛͋ͫͨ́͞lͪͨ̆ͣ͏̜͔̝̱̭̦̰ẉ̴̘̪̙̹͖̤̭͗̿ͤ̉ͅ'̢̞̪̪̤͕̩͐̎́ņ̵̳̟͕̗̫̒͋ͭ̑̚ͅa̮̯̗̙̜̻̻̣̿̒̒̓̑͆̄͂͡f͓̖̺̭̯̤̋͒ͩ̈͛͗̕͡h̻̖̹͓̯̘̟̱̟ͧͬ ̭̣̝̹̰͛̐ͩ̅͐͆͒̿͠C͙̦̥̬ͪ̒ͫ͐̄͜͟͠ṱ̷͖͇͈ͫͫ͋̉̾͋͐͆h̭͓̥̲̣̤̍͂͆́̈́ͫ̚u͔̙̩͇͕̲ͦͮ́͐ͭ̌͘ḻ̷̰̣̗̺̹̫̱̀͐̀̐̆ͤh͒̿̂ͪ͋͂͞͏̹͎͖͓̣̟̭͖͕u͊̌̎͋͛͆ͤ̋̆͟͡͏̯̗͖͓̗ ̜̩̗̜̲͊ͤ̉R̩̟̯̲ͭ̽̄́̽'̩̰̥͕͖̞̈́̄͛̄͂̉̕͠ͅl̝ͥͧy̴̼̘͙̽̈́̒ͩ̚̚̕͝ȩ͕̹͔̬̺͚̣̓͗ͥ̑ͣͤͧ́ḩ̰̪̜̦̼̭̯̮̀̀ͪ ̢̡̘͓̫̠̼̖͍̺̲͐̋̿ͬ̇̿͌ͫw̢̘̟̭̭̬̄ͤ̉ͦͮͧ́͝g̨̝̦͔͔̠̦̪ͧ̽͌ͧ̂͟͠ͅa̴̡̻̱̍ͩ̌̔̀ͅĥ̻͖̫̤͕̝͉̣ͤ̓ͩ͟ͅ'͈̭̤͍̻͔̼̟̘̓̐̀͘n̷̼͔̘̱͔̯̘̜̾̀͊͋̆̉͝a̞ͬͫ͌͐͂̀͒̀̕ĝ̦̣͈͚̦̝̜ͪl̫͚͛ͩ̈́̍́͞ ̬̗̜̗̞̘ͭ̍͡͠͝f̡̘̙̊̂ͥ̑͑̈̔̿͠h̵̠͓̙̦̹̝ͩ̿ͫ̐̂̄ͥͅt̵̻͓̠̰̖̖ͤͥ̂ͩͬ̾̚̕͝a̙͕̩͖̳̫̩͚ͪ͒̋ͩ̀g̞̱̲̔n̓̓͏̩̳̦ͅ");
         } else {
           say("P̷̹͍͙̬̗̠̗͍̯ͭ̅̓͛̐͊͋̉͝ĥ̵̡̢̪̜̙̣̬ͥ͆͂͛̌ͫ̾ͬ'̝̥̻̮̻̳̮͚̔̉̍ͥ̏̇̈́͞n̜̜͕̿͒́ͧͮ̎͘g̨̻̰͖̮ͣ̽̒͂ͯ̉̀͜l̰̞̦͈̪̣̙̐̈́ͭ̉ͯ͌u̵̲͍̗̪̓ͦͩ̂́͆͗͘i͖̜͚̦̗ͤͨ̊ͧ̀̓̓ ̩̳̙̞̭͒͊̓ͣ̿̾͠͠m͂̊̃̅͏̻̹̰̲͚̰̕g̡̺̜̭̣̏̓ͭ̇͛͋ͫͨ́͞lͪͨ̆ͣ͏̜͔̝̱̭̦̰ẉ̴̘̪̙̹͖̤̭͗̿ͤ̉ͅ'̢̞̪̪̤͕̩͐̎́ņ̵̳̟͕̗̫̒͋ͭ̑̚ͅa̮̯̗̙̜̻̻̣̿̒̒̓̑͆̄͂͡f͓̖̺̭̯̤̋͒ͩ̈͛͗̕͡h̻̖̹͓̯̘̟̱̟ͧͬ ̭̣̝̹̰͛̐ͩ̅͐͆͒̿͠C͙̦̥̬ͪ̒ͫ͐̄͜͟͠ṱ̷͖͇͈ͫͫ͋̉̾͋͐͆h̭͓̥̲̣̤̍͂͆́̈́ͫ̚u͔̙̩͇͕̲ͦͮ́͐ͭ̌͘ḻ̷̰̣̗̺̹̫̱̀͐̀̐̆ͤh͒̿̂ͪ͋͂͞͏̹͎͖͓̣̟̭͖͕u͊̌̎͋͛͆ͤ̋̆͟͡͏̯̗͖͓̗ ̜̩̗̜̲͊ͤ̉R̩̟̯̲ͭ̽̄́̽'̩̰̥͕͖̞̈́̄͛̄͂̉̕͠ͅl̝ͥͧy̴̼̘͙̽̈́̒ͩ̚̚̕͝ȩ͕̹͔̬̺͚̣̓͗ͥ̑ͣͤͧ́ḩ̰̪̜̦̼̭̯̮̀̀ͪ ̢̡̘͓̫̠̼̖͍̺̲͐̋̿ͬ̇̿͌ͫw̢̘̟̭̭̬̄ͤ̉ͦͮͧ́͝g̨̝̦͔͔̠̦̪ͧ̽͌ͧ̂͟͠ͅa̴̡̻̱̍ͩ̌̔̀ͅĥ̻͖̫̤͕̝͉̣ͤ̓ͩ͟ͅ'͈̭̤͍̻͔̼̟̘̓̐̀͘n̷̼͔̘̱͔̯̘̜̾̀͊͋̆̉͝a̞ͬͫ͌͐͂̀͒̀̕ĝ̦̣͈͚̦̝̜ͪl̫͚͛ͩ̈́̍́͞ ̬̗̜̗̞̘ͭ̍͡͠͝f̡̘̙̊̂ͥ̑͑̈̔̿͠h̵̠͓̙̦̹̝ͩ̿ͫ̐̂̄ͥͅt̵̻͓̠̰̖̖ͤͥ̂ͩͬ̾̚̕͝a̙͕̩͖̳̫̩͚ͪ͒̋ͩ̀g̞̱̲̔n̓̓͏̩̳̦ͅ");
+        }
+        break;
+      case "trout":
+        if (nick === "abjorn") {
+          say("/me slaps " + args[0] + " around with a large trout.");
+=======
+          say(prefix + "P̷̹͍͙̬̗̠̗͍̯ͭ̅̓͛̐͊͋̉͝ĥ̵̡̢̪̜̙̣̬ͥ͆͂͛̌ͫ̾ͬ'̝̥̻̮̻̳̮͚̔̉̍ͥ̏̇̈́͞n̜̜͕̿͒́ͧͮ̎͘g̨̻̰͖̮ͣ̽̒͂ͯ̉̀͜l̰̞̦͈̪̣̙̐̈́ͭ̉ͯ͌u̵̲͍̗̪̓ͦͩ̂́͆͗͘i͖̜͚̦̗ͤͨ̊ͧ̀̓̓ ̩̳̙̞̭͒͊̓ͣ̿̾͠͠m͂̊̃̅͏̻̹̰̲͚̰̕g̡̺̜̭̣̏̓ͭ̇͛͋ͫͨ́͞lͪͨ̆ͣ͏̜͔̝̱̭̦̰ẉ̴̘̪̙̹͖̤̭͗̿ͤ̉ͅ'̢̞̪̪̤͕̩͐̎́ņ̵̳̟͕̗̫̒͋ͭ̑̚ͅa̮̯̗̙̜̻̻̣̿̒̒̓̑͆̄͂͡f͓̖̺̭̯̤̋͒ͩ̈͛͗̕͡h̻̖̹͓̯̘̟̱̟ͧͬ ̭̣̝̹̰͛̐ͩ̅͐͆͒̿͠C͙̦̥̬ͪ̒ͫ͐̄͜͟͠ṱ̷͖͇͈ͫͫ͋̉̾͋͐͆h̭͓̥̲̣̤̍͂͆́̈́ͫ̚u͔̙̩͇͕̲ͦͮ́͐ͭ̌͘ḻ̷̰̣̗̺̹̫̱̀͐̀̐̆ͤh͒̿̂ͪ͋͂͞͏̹͎͖͓̣̟̭͖͕u͊̌̎͋͛͆ͤ̋̆͟͡͏̯̗͖͓̗ ̜̩̗̜̲͊ͤ̉R̩̟̯̲ͭ̽̄́̽'̩̰̥͕͖̞̈́̄͛̄͂̉̕͠ͅl̝ͥͧy̴̼̘͙̽̈́̒ͩ̚̚̕͝ȩ͕̹͔̬̺͚̣̓͗ͥ̑ͣͤͧ́ḩ̰̪̜̦̼̭̯̮̀̀ͪ ̢̡̘͓̫̠̼̖͍̺̲͐̋̿ͬ̇̿͌ͫw̢̘̟̭̭̬̄ͤ̉ͦͮͧ́͝g̨̝̦͔͔̠̦̪ͧ̽͌ͧ̂͟͠ͅa̴̡̻̱̍ͩ̌̔̀ͅĥ̻͖̫̤͕̝͉̣ͤ̓ͩ͟ͅ'͈̭̤͍̻͔̼̟̘̓̐̀͘n̷̼͔̘̱͔̯̘̜̾̀͊͋̆̉͝a̞ͬͫ͌͐͂̀͒̀̕ĝ̦̣͈͚̦̝̜ͪl̫͚͛ͩ̈́̍́͞ ̬̗̜̗̞̘ͭ̍͡͠͝f̡̘̙̊̂ͥ̑͑̈̔̿͠h̵̠͓̙̦̹̝ͩ̿ͫ̐̂̄ͥͅt̵̻͓̠̰̖̖ͤͥ̂ͩͬ̾̚̕͝a̙͕̩͖̳̫̩͚ͪ͒̋ͩ̀g̞̱̲̔n̓̓͏̩̳̦ͅ");
+        } else {
+          say("P̷̹͍͙̬̗̠̗͍̯ͭ̅̓͛̐͊͋̉͝ĥ̵̡̢̪̜̙̣̬ͥ͆͂͛̌ͫ̾ͬ'̝̥̻̮̻̳̮͚̔̉̍ͥ̏̇̈́͞n̜̜͕̿͒́ͧͮ̎͘g̨̻̰͖̮ͣ̽̒͂ͯ̉̀͜l̰̞̦͈̪̣̙̐̈́ͭ̉ͯ͌u̵̲͍̗̪̓ͦͩ̂́͆͗͘i͖̜͚̦̗ͤͨ̊ͧ̀̓̓ ̩̳̙̞̭͒͊̓ͣ̿̾͠͠m͂̊̃̅͏̻̹̰̲͚̰̕g̡̺̜̭̣̏̓ͭ̇͛͋ͫͨ́͞lͪͨ̆ͣ͏̜͔̝̱̭̦̰ẉ̴̘̪̙̹͖̤̭͗̿ͤ̉ͅ'̢̞̪̪̤͕̩͐̎́ņ̵̳̟͕̗̫̒͋ͭ̑̚ͅa̮̯̗̙̜̻̻̣̿̒̒̓̑͆̄͂͡f͓̖̺̭̯̤̋͒ͩ̈͛͗̕͡h̻̖̹͓̯̘̟̱̟ͧͬ ̭̣̝̹̰͛̐ͩ̅͐͆͒̿͠C͙̦̥̬ͪ̒ͫ͐̄͜͟͠ṱ̷͖͇͈ͫͫ͋̉̾͋͐͆h̭͓̥̲̣̤̍͂͆́̈́ͫ̚u͔̙̩͇͕̲ͦͮ́͐ͭ̌͘ḻ̷̰̣̗̺̹̫̱̀͐̀̐̆ͤh͒̿̂ͪ͋͂͞͏̹͎͖͓̣̟̭͖͕u͊̌̎͋͛͆ͤ̋̆͟͡͏̯̗͖͓̗ ̜̩̗̜̲͊ͤ̉R̩̟̯̲ͭ̽̄́̽'̩̰̥͕͖̞̈́̄͛̄͂̉̕͠ͅl̝ͥͧy̴̼̘͙̽̈́̒ͩ̚̚̕͝ȩ͕̹͔̬̺͚̣̓͗ͥ̑ͣͤͧ́ḩ̰̪̜̦̼̭̯̮̀̀ͪ ̢̡̘͓̫̠̼̖͍̺̲͐̋̿ͬ̇̿͌ͫw̢̘̟̭̭̬̄ͤ̉ͦͮͧ́͝g̨̝̦͔͔̠̦̪ͧ̽͌ͧ̂͟͠ͅa̴̡̻̱̍ͩ̌̔̀ͅĥ̻͖̫̤͕̝͉̣ͤ̓ͩ͟ͅ'͈̭̤͍̻͔̼̟̘̓̐̀͘n̷̼͔̘̱͔̯̘̜̾̀͊͋̆̉͝a̞ͬͫ͌͐͂̀͒̀̕ĝ̦̣͈͚̦̝̜ͪl̫͚͛ͩ̈́̍́͞ ̬̗̜̗̞̘ͭ̍͡͠͝f̡̘̙̊̂ͥ̑͑̈̔̿͠h̵̠͓̙̦̹̝ͩ̿ͫ̐̂̄ͥͅt̵̻͓̠̰̖̖ͤͥ̂ͩͬ̾̚̕͝a̙͕̩͖̳̫̩͚ͪ͒̋ͩ̀g̞̱̲̔n̓̓͏̩̳̦ͅ");
+>>>>>>> a425f4e57d4ea9771d4a819695c4bacd246c0fd9
         }
         break;
       case "trout":
@@ -555,6 +603,75 @@ DB.get("logs", function (doc) {
         say(msg);
       }
     } else {
+<<<<<<< HEAD
+      // Karma system
+      if (msg.substr(-2, 2) === "++") {
+        var name = msg.substr(0, msg.length - 2).toLowerCase();
+        if (name.split(" ").join("") === name) {
+          if (name !== nick.toLowerCase()) {
+            if (karma[name]) {
+              karma[name]++;
+            } else {
+              karma[name] = 1;
+            }
+            DB.save(karma, function (res) {
+              if (!res.ok) {
+                logError(res.error);
+              }
+            });
+          } else {
+            say(nick + ": Nice try, faggot.");
+          }
+        }
+      } else {
+        var tokens = msg.split(" ");
+        if (tokens[0] === "bro-bot:") {
+          if (tokens[1].toLowerCase() === "tell" && tokens.length > 3) {
+            // leave messages
+            var name = tokens[2].toLowerCase(),
+                newMessage = tokens.slice(1).join(" ");
+            if (typeof messages[name] === "undefined") {
+              messages[name] = [];
+            }
+            messages[name].push({
+              sender : nick,
+              message : newMessage
+            });
+            DB.save(messages, function (res) {
+              if (res.ok) {
+                say(nick + ": Okay");
+              } else {
+                logError(res.error);
+              }
+            });
+          }
+        }
+      }
+    }
+  });
+  
+  client.addListener("pm", function (nick, msg) {
+    if (nick.toLowerCase() === "abjorn") {
+      if (msg[0] === "?" && msg.length > 1) {
+        var args = msg.split(" "),
+            command = args.shift().substr(1);
+            
+        switch (command) {
+        case "say":
+          if (args.length > 1) {
+            var chan = args.shift();
+            client.join(chan);
+            client.say(chan, args.join(" "));
+            client.part(chan);
+          }
+          break;
+        }
+      } else {
+        say(msg);
+      }
+    } else {
+=======
+>>>>>>> a425f4e57d4ea9771d4a819695c4bacd246c0fd9
       client.say(nick, "I don't want to talk to you, fuck off.");
     }
   });
