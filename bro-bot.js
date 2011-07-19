@@ -8,7 +8,7 @@
 (function () {
 "use strict";
 
-var VERSION = "Bro-Bot Version 0.7.0",
+var VERSION = "Bro-Bot Version 0.7.1",
     Server  = new Sofa.Server({ host : "127.0.0.1" }),
     DB      = new Sofa.Database(Server, "bro-bot"),
     JSENV   = {

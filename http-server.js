@@ -84,12 +84,11 @@ module.exports.start = function (logs, bot) {
     var payload = JSON.parse(req.body.payload),
         commit;
     bot.say("#vidyadev", "Push to GitHub Repository " + payload.repository.name
-      + "<" + payload.respository.url + "> (" + payload.repository.owner.name + ")");
-    /*for (var i = 0; i < payload.commits.length; i++) {
+      + "<" + payload.repository.url + ">");
+    for (var i = 0; i < payload.commits.length; i++) {
       commit = payload.commits[i];
-      bot.say("#vidyadev", "Commit " + commit.id + ": '" + commit.message + "' at "
-        + commit.timestamp + " by " + commit.author.name + " <" + commit.url + ">");
-    }*/
+      bot.say("#vidyadev", 'Commit: "' + commit.message + '" <' + commit.url + ">");
+    }
   });
   
   app.listen(80);
