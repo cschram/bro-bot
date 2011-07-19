@@ -2,12 +2,13 @@
     vm      = require("vm"),
     irc     = require("irc"),
     Sofa    = require("sofa"),
-    config  = require("./bot-config");
+    config  = require("./config")
+    server  = require("./http-server");
 
 (function () {
 "use strict";
 
-var VERSION = "Bro-Bot Version 0.6.2",
+var VERSION = "Bro-Bot Version 0.7.0",
     Server  = new Sofa.Server({ host : "127.0.0.1" }),
     DB      = new Sofa.Database(Server, "bro-bot"),
     JSENV   = {
@@ -323,9 +324,9 @@ DB.get("logs", function (doc) {
       // Search the IRC Logs
       case "logs":
         if (args.length === 0) {
-          say(prefix + "http://irclogs.vidyadev.org/");
+          say(prefix + "http://bot.vidyadev.org/logs/");
         } else {
-          say(prefix + "http://irclogs.vidyadev.org/search/" + args.join("+"));
+          say(prefix + "http://bot.vidyadev.org/logs/search/" + args.join("+"));
         }
         break;
         
@@ -558,6 +559,9 @@ DB.get("logs", function (doc) {
       client.say(nick, "I don't want to talk to you, fuck off.");
     }
   });
+  
+  // Start the HTTP Server
+  server.start(logs, client);
 
 });
 
