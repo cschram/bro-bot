@@ -81,15 +81,15 @@ module.exports.start = function (logs, bot) {
   });
   
   app.post("/github/postreceive", function (req, res) {
-    var commit;
-    /*bot.say("#vidyadev", "Push to GitHub Repository " + req.body.repository.name
-      + "<" + req.body.respository.url + "> (" + req.body.repository.owner.name + ")");
-    for (var i = 0; i < req.body.commits.length; i++) {
-      commit = req.body.commits[i];
+    var payload = JSON.parse(req.body.payload),
+        commit;
+    bot.say("#vidyadev", "Push to GitHub Repository " + payload.repository.name
+      + "<" + payload.respository.url + "> (" + payload.repository.owner.name + ")");
+    /*for (var i = 0; i < payload.commits.length; i++) {
+      commit = payload.commits[i];
       bot.say("#vidyadev", "Commit " + commit.id + ": '" + commit.message + "' at "
         + commit.timestamp + " by " + commit.author.name + " <" + commit.url + ">");
     }*/
-    bot.say("#vidyadev", "Test GitHub Post-Receive Hook: " + JSON.stringify(req.body));
   });
   
   app.listen(80);
