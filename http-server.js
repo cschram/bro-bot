@@ -3,14 +3,15 @@ var console = require("console"),
 
 module.exports.start = function (logs, bot) {
   "use strict";
-  var app    = express.createServer(),
+  var app = express.createServer(
+        express.bodyParser(),
+        express.errorHandler()
+      ),
       header = '<!doctype html><html><head><meta charset="utf-8"></head><body>',
       footer = "</body></html>";
-
-  app.use(express.bodyParser());
   
   app.get("/", function (req, res) {
-    res.send(header + 'Bro-Bot is an IRC Bot for #vidyadev that does many useful things like <a href="logss/">logging</a>.' + footer);
+    res.send(header + 'Bro-Bot is an IRC Bot for #vidyadev that does many useful things like <a href="logs/">logging</a>.' + footer);
   });
   
   app.get("/logs/:page?", function (req, res) {
@@ -24,7 +25,11 @@ module.exports.start = function (logs, bot) {
       }
     } else if (req.params.page === "errors") {
       for (var i = 0; i < logs.errors.length; i++) {
-        result += logs.errors[i] + "<br>";
+        if (typeof logs.errors[i] === "object") {
+          result += JSON.stringify(logs.errors[i]) + "<hr>";
+        } else {
+          result += logs.errors[i] + "<hr>";
+        }
       }
     } else {
       if (req.params.page) {
@@ -72,7 +77,6 @@ module.exports.start = function (logs, bot) {
     for (var i = 0; i < logs.chat.length; i++) {
       if (logs.chat[i].indexOf(term) > -1) {
         result += "<li>" + logs.chat[i]; + "</li>";
-        break;
       }
     }
     

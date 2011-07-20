@@ -8,7 +8,7 @@
 (function () {
 "use strict";
 
-var VERSION = "Bro-Bot Version 0.7.1",
+var VERSION = "Bro-Bot Version 0.7.3",
     Server  = new Sofa.Server({ host : "127.0.0.1" }),
     DB      = new Sofa.Database(Server, "bro-bot"),
     JSENV   = {
@@ -148,7 +148,9 @@ DB.get("logs", function (doc) {
   function saveLogs() {
     if (logsChanged) {
       DB.save(logs, function (res) {
-        logsChanged = false;
+        if (res.ok) {
+          logsChanged = false;
+        }
       });
     }
     setTimeout(saveLogs, config.loginterval);
@@ -180,6 +182,7 @@ DB.get("logs", function (doc) {
   }
   // Log errors
   function logError(msg) {
+    msg = "<small>" + (new Date()).toUTCString() + "</small> " + msg;
     logs.errors.push(msg);
     console.error(msg);
     logsChanged = true;
@@ -209,6 +212,13 @@ DB.get("logs", function (doc) {
 
   client.addListener("part" + config.channel, function (nick, reason) {
     logChat("<b>[" + nick + "]</b> Left. (" + reason + ")");
+    // In case Bro-Bot gets disconnected
+    if (nick === "bro-bot") {
+      client.join("#vidyadev");
+      client.say("nickserv", "ghost bro-bot " + config.password);
+      client.say("#vidyadev", "/nick bro-bot");
+      client.say("nickserv", "identify " + config.password);
+    }
   });
 
   client.addListener("message" + config.channel, function (nick, msg) {
