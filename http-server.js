@@ -1,36 +1,36 @@
-var console = require("console"),
-    express = require("express");
+var console   = require("console"),
+    express   = require("express"),
+    utemplate = require("./utemplate");
+
+var indexTemplate  = new utemplate.Template("templates/index.html"),
+    logsTemplate   = new utemplate.Template("templates/page.html"),
+    searchTemplate = new utemplate.Template("templates/search.html");
 
 module.exports.start = function (logs, bot) {
   "use strict";
   var app = express.createServer(
         express.bodyParser(),
         express.errorHandler()
-      ),
-      header = '<!doctype html><html><head><meta charset="utf-8"></head><body>',
-      footer = "</body></html>";
+      );
   
   app.get("/", function (req, res) {
-    res.send(header + 'Bro-Bot is an IRC Bot for #vidyadev that does many useful things like <a href="logs/">logging</a>.' + footer);
+    indexTemplate.render({static_dir : "http://bot.vidyadev.org/static"}, function (err, data) {
+      if (err) {
+        res.send(err);
+      } else {
+        res.send(data);
+      }
+    });
   });
   
   app.get("/logs/:page?", function (req, res) {
-    var result = header, 
-        pageCount = parseInt(logs.chat.length / 100),
-        page, start;
+    var pageCount = parseInt(logs.chat.length / 100),
+        page, start, lines;
     
     if (req.params.page === "all") {
-      for (var i = 0; i < logs.chat.length; i++) {
-        result += logs.chat[i] + "<br>";
-      }
+      lines = logs.chat;
     } else if (req.params.page === "errors") {
-      for (var i = 0; i < logs.errors.length; i++) {
-        if (typeof logs.errors[i] === "object") {
-          result += JSON.stringify(logs.errors[i]) + "<hr>";
-        } else {
-          result += logs.errors[i] + "<hr>";
-        }
-      }
+      lines = logs.errors;
     } else {
       if (req.params.page) {
         page = parseInt(req.params.page, 10);
@@ -38,50 +38,50 @@ module.exports.start = function (logs, bot) {
         page = 1;
       }
       
-      result += '<div style="width:100%;">';
-      if (page > 1) {
-        result += '<a href="http://bot.vidyadev.org/logs/' + (page - 1) + '" style="float:left;">&lt;&lt; Newer</a>';
-      }
-      if (page < pageCount) {
-        result += '<a href="http://bot.vidyadev.org/logs/' + (page + 1) + '" style="float:right;">Older &gt;&gt;</a>';
-      }
-      result += '</div><div style="clear:both;"></div><hr>';
-      
       if (page > pageCount) {
-        result += "<h1>Page Not Fount</h1>";
+        lines = ["<h1>Page Not Fount</h1>"];
       } else {
         start = (logs.chat.length < (page * 100)) ? 0 : logs.chat.length - (page * 100);
-        for (var i = start; i < (start + 100); i++) {
-          result += logs.chat[i] + "<br>";
-        }
+        lines = logs.chat.slice(start, start + 100);
       }
-      
-      result += '<hr><div style="width:100%;">';
-      if (page > 1) {
-        result += '<a href="http://bot.vidyadev.org/logs/' + (page - 1) + '" style="float:left;">&lt;&lt; Newer</a>';
-      }
-      if (page < pageCount) {
-        result += '<a href="http://bot.vidyadev.org/logs/' + (page + 1) + '" style="float:right;">Older &gt;&gt;</a>';
-      }
-      result += '</div><div style="clear:both;"></div>';
     }
-    
-    result += footer;
-    res.send(result);
+    logsTemplate.render({
+      static_dir : "http://bot.vidyadev.org/static",
+      "page" : page,
+      new_page : page - 1,
+      old_page : page + 1,
+      page_count : pageCount,
+      "lines" : lines
+    }, function (err, data) {
+      if (err) {
+        console.error(err);
+        res.send(err);
+      } else {
+        res.send(data);
+      }
+    });
   });
 
   app.get("/logs/search/:terms", function (req, res) {
-    var result = header + '<h1>Search for "' + req.params.terms + '"</h1><ul>',
-        term = req.params.terms.split("+").join(" ");
+    var term = req.params.terms.split("+").join(" "), lines = [];
         
     for (var i = 0; i < logs.chat.length; i++) {
       if (logs.chat[i].indexOf(term) > -1) {
-        result += "<li>" + logs.chat[i]; + "</li>";
+        lines.push(logs.chat[i]);
       }
     }
     
-    result += "</ul>" + footer;
-    res.send(result);
+    searchTemplate.render({
+      static_dir : "http://bot.vidyadev.org/static",
+      "lines" : lines
+    }, function (err, data) {
+      if (err) {
+        console.error(err);
+        res.send(err);
+      } else {
+        res.send(data);
+      }
+    });
   });
   
   app.post("/github/postreceive", function (req, res) {
@@ -93,6 +93,17 @@ module.exports.start = function (logs, bot) {
       commit = payload.commits[i];
       bot.say("#vidyadev", 'Commit: "' + commit.message + '" <' + commit.url + ">");
     }
+  });
+  
+  // Serve Static Content
+  app.get('/static/:dir/:subdir?/:file', function (req, res) {
+    var file = "static/" + req.params.dir + "/";
+    if (req.params.subdir) {
+      file = file + req.params.subdir + '/' + req.params.file;
+    } else {
+      file = file + req.params.file;
+    }
+    res.sendfile(file);
   });
   
   app.listen(80);

@@ -8,7 +8,7 @@
 (function () {
 "use strict";
 
-var VERSION = "Bro-Bot Version 0.7.3",
+var VERSION = "Bro-Bot Version 0.8.0",
     Server  = new Sofa.Server({ host : "127.0.0.1" }),
     DB      = new Sofa.Database(Server, "bro-bot"),
     JSENV   = {
@@ -222,7 +222,7 @@ DB.get("logs", function (doc) {
   });
 
   client.addListener("message" + config.channel, function (nick, msg) {
-    logChat("<b>[" + nick + "]</b> " + msg);
+    logChat('<span class="irc-nick">[' + nick + "]</span> " + msg);
     
     // Check for messages left for the user
     if (messages[nick.toLowerCase()] && messages[nick.toLowerCase()].length > 0) {
@@ -521,7 +521,8 @@ DB.get("logs", function (doc) {
         }
       } else {
         var tokens = msg.split(" ");
-        if (tokens[0] === "bro-bot:") {
+        switch (tokens[0]) {
+        case "bro-bot:":
           if (tokens[1].toLowerCase() === "tell" && tokens.length > 3) {
             // leave messages
             var name = tokens[2].toLowerCase(),
@@ -541,6 +542,10 @@ DB.get("logs", function (doc) {
               }
             });
           }
+          break;
+        case ">implying":
+          say(">implying you aren't a faggot");
+          break;
         }
       }
     }

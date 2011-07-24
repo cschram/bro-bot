@@ -1,0 +1,13 @@
+{! templates/header.html !}
+
+<div style="padding: 10px 20px 0 20px;">
+  {% for (var i = 0; i < lines.length; i++) { %}
+    {% if (lines[i] === "<hr>") { %}
+      {{ lines[i] }}
+    {% } else { %}
+      {{ lines[i] }} <br>
+    {% } %}
+  {% } %}
+</div>
+
+{! templates/footer.html !}
