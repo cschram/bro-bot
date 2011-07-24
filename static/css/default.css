@@ -141,6 +141,12 @@ div#main {
     margin-bottom: 20px; }
   div#main p {
     padding: 0.25em 20px; }
+  div#main span.irc-nick {
+    color: blue;
+    font-weight: bolder; }
+  div#main span.irc-bot {
+    color: green;
+    font-weight: bolder; }
 
 div#sidebar > div {
   border-radius: 2px;

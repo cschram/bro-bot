@@ -1,8 +1,10 @@
 $(function () {
   "use strict";
   
-  $("form#search input").submit(function (event) {
-    window.location = "http://bot.vidyadev.com/logs/search/" + input.val().split(" ").join("+");
+  $("form#search").submit(function (event) {
+    event.preventDefault();
+    var input = $(this).find("input").first();
+    window.location = "http://bot.vidyadev.org/logs/search/" + input.val().split(" ").join("+");
     return false;
   });
   

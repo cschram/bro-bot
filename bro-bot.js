@@ -8,7 +8,7 @@
 (function () {
 "use strict";
 
-var VERSION = "Bro-Bot Version 0.8.0",
+var VERSION = "Bro-Bot Version 0.8.1",
     Server  = new Sofa.Server({ host : "127.0.0.1" }),
     DB      = new Sofa.Database(Server, "bro-bot"),
     JSENV   = {
@@ -190,7 +190,7 @@ DB.get("logs", function (doc) {
   
   function say (msg) {
     if (chatCount < 5) { // flood protection
-      logChat("<b>[bro-bot]></b> " + msg);
+      logChat('<span class="irc-bot">[bro-bot]</span> ' + msg);
       client.say(config.channel, msg);
       chatCount += 1; // flood protection
     }
@@ -543,8 +543,13 @@ DB.get("logs", function (doc) {
             });
           }
           break;
+        case ">":
+          if (msg.substr(0, 10) === "> implying") {
+            say(">implying " + nick + " isn't a faggot");
+          }
+          break;
         case ">implying":
-          say(">implying you aren't a faggot");
+          say(">implying " + nick + " isn't a faggot");
           break;
         }
       }
