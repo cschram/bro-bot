@@ -1,29 +1,33 @@
 ﻿// Pre-requisites
+// --------------
 // Node-IRC
 // Sofa.js
 // Relative-Date
+// --------------
 var console      = require("console"),
     url          = require("url"),
     http         = require("http"),
+    https        = require("https"),
     irc          = require("irc"),
     sofa         = require("sofa"),
     relativeDate = require("relative-date"),
     config       = require("./config");
 
 // Globals
-var VERSION    = "Bro-Bot Verion 0.9.1 (Logging Disabled)",                      // Version String
-    server     = new sofa.Server({ host : "127.0.0.1" }),                        // CouchDB server
-    db         = new sofa.Database(server, "bro-bot"),                           // CouchDB Database
-    chatCount  = 0,                                                              // Messages this second (flood control)
-    urlMatch   = /(https?:\/\/)([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w\.-]*)*\/?/ig, // Match a URL
-    titleMatch = /\<title\>([\w\W]*)\<\/title\>/i,                               // Match a HTML Title
+var VERSION    = "Bro-Bot Version 0.9.2 (Logging Disabled)", // Version String
+    server     = new sofa.Server({ host : "127.0.0.1" }),    // CouchDB server
+    db         = new sofa.Database(server, "bro-bot"),       // CouchDB Database
+    chatCount  = 0,                                          // Messages this second (flood control)
+    urlMatch   = /(\b(https?):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig, // Match a URL
+    titleMatch = /\<title\>([\w\W]*)\<\/title\>/i,                                              // Match a HTML Title
     karma, messages, client;
 
 // Retrive karma db doc
 db.get("karma", function (doc, err) {
   karma = doc;
   if (err) {
-    console.err("[ERROR] Was unable to retrieve document 'karma.'");
+    console.error("[ERROR] Was unable to retrieve document 'karma.'");
+    console.error("        " + err);
   }
 });
 
@@ -31,7 +35,8 @@ db.get("karma", function (doc, err) {
 db.get("messages", function (doc, err) {
   messages = doc;
   if (err) {
-    console.err("[ERROR] Was unable to retrieve document 'messages.'");
+    console.error("[ERROR] Was unable to retrieve document 'messages.'");
+    console.error("        " + err);
   }
 });
 
@@ -59,20 +64,27 @@ function say (msg) {
 
 // Follow a URL to output it's html <title>
 function handleURL(u) {
-  var urlObject = url.parse(u);
-  http.get(urlObject, function (res) {
-    if (res.statusCode === 301) {
+  var urlObject = url.parse(u),
+      protocol = urlObject.protocol === "https" ? https : http;
+  protocol.get(urlObject, function (res) {
+    if (res.statusCode === 301 || res.statusCode === 302) {
       handleURL(res.headers.location);
-    } else {
+    } else if (res.statusCode === 200) {
       res.on("data", function (chunk) {
         var html = chunk.toString("utf8"),
             title;
         title = titleMatch.exec(html);
         if (title !== null) {
-          say(title[1] + " - " + u);
+          title = title[1].trim().replace(/[\t\n]/, "");
+          say(title);
         }
       });
+    } else {
+      say("Error " + res.statusCode);
     }
+  }).on("error", function (e) {
+    console.error("[ERROR] Unable to fetch " + u);
+    console.error("        " + e);
   });
 }
 
