@@ -6,6 +6,7 @@
 // TODO:
 //  * ?seen command to see when a user was last seen
 //  * ?link / ?addlink / ?remlink commands for adding common links and managing them.
+//  * ?yt command to search youtube
 //
 //////////////////////////////////////////////////////////////////////////////////////
 var console      = require("console"),
@@ -18,12 +19,12 @@ var console      = require("console"),
     config       = require("./config");
 
 // Globals
-var VERSION    = "Bro-Bot Version 0.9.3 (Logging Disabled)", // Version String
-    server     = new sofa.Server({ host : "127.0.0.1" }),    // CouchDB server
-    db         = new sofa.Database(server, "bro-bot"),       // CouchDB Database
-    chatCount  = 0,                                          // Messages this second (flood control)
+var VERSION    = "Bro-Bot Version 0.9.5",                 // Version String
+    server     = new sofa.Server({ host : "127.0.0.1" }), // CouchDB server
+    db         = new sofa.Database(server, "bro-bot"),    // CouchDB Database
+    chatCount  = 0,                                       // Messages this second (flood control)
     urlMatch   = /(\b(https?):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig, // Match a URL
-    titleMatch = /\<title\>([\w\W]*?)\<\/title\>/i,                                              // Match a HTML Title
+    titleMatch = /\<title\>([\w\W]*?)\<\/title\>/i,                                    // Match a HTML Title
     messages, client;
 
 // Retrive messages db doc
@@ -36,8 +37,8 @@ db.get("messages", function (doc, err) {
 });
 
 // Create IRC Client
-client = new irc.Client("irc.freenode.net", "bro-bot", {
-  username : "bro-bot",
+client = new irc.Client("irc.freenode.net", config.nickname, {
+  username : config.nickname,
   channels : [config.channel]
 });
 
@@ -51,7 +52,7 @@ setTimeout(clearChatCount, 1000);
 // Send a message to the channel
 function say (msg) {
   if (chatCount < 5) {
-    console.log("[bro-bot] " + msg);
+    console.log("[" + config.nickname + "] " + msg);
     client.say(config.channel, msg);
     chatCount += 1;
   }
@@ -90,20 +91,18 @@ client.addListener("error", function (error) {
 // Essentially when the bot connects to freenode
 client.addListener("motd", function (motd) {
   console.log("Connected to Freenode");
-  client.say("nickserv", "identify " + config.password);
+  if (config.password !== "") {
+    client.say("nickserv", "identify " + config.password);
+  }
 });
 
 // Join Listener
 // Called whenever a user (or bro-bot) connect
 client.addListener("join" + config.channel, function (nick) {
-  if (nick === "bro-bot") {
+  if (nick === config.nickname) {
     say(VERSION);
   } else {
     console.log("[" + nick + "] joined.");
-
-    if (nick === "firecrackers") {
-      say("Fuck off firecrackers");
-    }
   }
 });
 
@@ -112,11 +111,13 @@ client.addListener("join" + config.channel, function (nick) {
 client.addListener("part" + config.channel, function (nick, reason) {
   console.log("[" + nick + "] Left. (" + reason + ")");
   // In case Bro-Bot gets disconnected
-  if (nick === "bro-bot") {
-    client.join("#vidyadev");
-    client.say("nickserv", "ghost bro-bot " + config.password);
-    client.say("#vidyadev", "/nick bro-bot");
-    client.say("nickserv", "identify " + config.password);
+  if (nick === config.nickname) {
+    client.join(config.channel);
+    if (config.password !== "") {
+      client.say("nickserv", "ghost " + config.nickname + " " + config.password);
+      client.say(config.channel, "/nick " + config.nickname);
+      client.say("nickserv", "identify " + config.password);
+    }
   }
 });
 
@@ -299,7 +300,7 @@ client.addListener("message" + config.channel, function (nick, msg) {
 
     var tokens = msg.split(" ");
     switch (tokens[0]) {
-    case "bro-bot:":
+    case (config.nickname + ":"):
       if (tokens.length > 1 && tokens[1].toLowerCase() === "tell" && tokens.length > 3) {
         // leave messages
         var name = tokens[2].toLowerCase(),
@@ -336,7 +337,7 @@ client.addListener("message" + config.channel, function (nick, msg) {
 
 // Handle private messages
 client.addListener("pm", function (nick, msg) {
-  if (nick.toLowerCase() === "abjorn") {
+  if (nick.toLowerCase() === config.admin) {
     if (msg[0] === "?" && msg.length > 1) {
       var args = msg.split(" "),
           command = args.shift().substr(1);

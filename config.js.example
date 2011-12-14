@@ -1,0 +1,15 @@
+//
+// Example Configuration File for Bro-Bot
+//
+
+// Admin user
+exports.admin = "abjorn";
+
+// Nickname to use
+exports.nickname = "bro-bot-dev";
+
+// Channel to connect to
+exports.channel = "#mychannel";
+
+// NickServ password (leave blank to not identify)
+exports.password = "";
