@@ -1,9 +1,13 @@
-﻿// Pre-requisites
-// --------------
-// Node-IRC
-// Sofa.js
-// Relative-Date
-// --------------
+﻿/////////////////////////////////////////////////////////////////////////////////////
+// Bro-Bot
+// By Abjorn <https://github.com/Abjorn>
+/////////////////////////////////////////////////////////////////////////////////////
+//
+// TODO:
+//  * ?seen command to see when a user was last seen
+//  * ?link / ?addlink / ?remlink commands for adding common links and managing them.
+//
+//////////////////////////////////////////////////////////////////////////////////////
 var console      = require("console"),
     url          = require("url"),
     http         = require("http"),
@@ -14,22 +18,13 @@ var console      = require("console"),
     config       = require("./config");
 
 // Globals
-var VERSION    = "Bro-Bot Version 0.9.2 (Logging Disabled)", // Version String
+var VERSION    = "Bro-Bot Version 0.9.3 (Logging Disabled)", // Version String
     server     = new sofa.Server({ host : "127.0.0.1" }),    // CouchDB server
     db         = new sofa.Database(server, "bro-bot"),       // CouchDB Database
     chatCount  = 0,                                          // Messages this second (flood control)
     urlMatch   = /(\b(https?):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig, // Match a URL
-    titleMatch = /\<title\>([\w\W]*)\<\/title\>/i,                                              // Match a HTML Title
-    karma, messages, client;
-
-// Retrive karma db doc
-db.get("karma", function (doc, err) {
-  karma = doc;
-  if (err) {
-    console.error("[ERROR] Was unable to retrieve document 'karma.'");
-    console.error("        " + err);
-  }
-});
+    titleMatch = /\<title\>([\w\W]*?)\<\/title\>/i,                                              // Match a HTML Title
+    messages, client;
 
 // Retrive messages db doc
 db.get("messages", function (doc, err) {
@@ -65,22 +60,20 @@ function say (msg) {
 // Follow a URL to output it's html <title>
 function handleURL(u) {
   var urlObject = url.parse(u),
-      protocol = urlObject.protocol === "https" ? https : http;
+      protocol = (urlObject.protocol === "https:") ? https : http;
   protocol.get(urlObject, function (res) {
     if (res.statusCode === 301 || res.statusCode === 302) {
       handleURL(res.headers.location);
-    } else if (res.statusCode === 200) {
+    } else if (res.statusCode === 200 && res.headers["content-type"].split(";")[0] === "text/html") {
       res.on("data", function (chunk) {
         var html = chunk.toString("utf8"),
             title;
         title = titleMatch.exec(html);
         if (title !== null) {
-          title = title[1].trim().replace(/[\t\n]/, "");
+          title = title[1].trim().replace(/[\t\r\n]+/g, " ");
           say(title);
         }
       });
-    } else {
-      say("Error " + res.statusCode);
     }
   }).on("error", function (e) {
     console.error("[ERROR] Unable to fetch " + u);
@@ -107,6 +100,10 @@ client.addListener("join" + config.channel, function (nick) {
     say(VERSION);
   } else {
     console.log("[" + nick + "] joined.");
+
+    if (nick === "firecrackers") {
+      say("Fuck off firecrackers");
+    }
   }
 });
 
@@ -226,20 +223,6 @@ client.addListener("message" + config.channel, function (nick, msg) {
       say(prefix + "http://lmgtfy.com/?q=" + args.join("+"));
       break;
       
-    // Return the Karma of a User
-    case "karma":
-      if (args.length > 0) {
-        var name = args[0].toLowerCase();
-        if (karma[name]) {
-          say(prefix + karma[name]);
-        } else {
-          say(prefix + "0");
-        }
-      } else {
-        say(prefix + "shit dawg wtf r u doin");
-      }
-      break;
-      
     //// Get help on Commands ////
     case "help":
       if (args.length === 0) {
@@ -314,60 +297,40 @@ client.addListener("message" + config.channel, function (nick, msg) {
       handleURL(matches[0]);
     }
 
-    // Karma system
-    if (msg.substr(-2, 2) === "++") {
-      var name = msg.substr(0, msg.length - 2).toLowerCase();
-      if (name.split(" ").join("") === name) {
-        if (name !== nick.toLowerCase()) {
-          if (karma[name]) {
-            karma[name]++;
+    var tokens = msg.split(" ");
+    switch (tokens[0]) {
+    case "bro-bot:":
+      if (tokens.length > 1 && tokens[1].toLowerCase() === "tell" && tokens.length > 3) {
+        // leave messages
+        var name = tokens[2].toLowerCase(),
+            newMessage = tokens.slice(1).join(" ");
+        if (typeof messages[name] === "undefined") {
+          messages[name] = [];
+        }
+        messages[name].push({
+          sender : nick,
+          message : newMessage,
+          date : Date.now()
+        });
+        db.save(messages, function (res) {
+          if (res.ok) {
+            say(nick + ": Okay");
           } else {
-            karma[name] = 1;
+            console.error(res.error);
           }
-          db.save(karma, function (res) {
-            if (!res.ok) {
-              console.error(res.error);
-            }
-          });
-        } else {
-          say(nick + ": nuh uh.");
-        }
+        });
       }
-    } else {
-      var tokens = msg.split(" ");
-      switch (tokens[0]) {
-      case "bro-bot:":
-        if (tokens.length > 1 && tokens[1].toLowerCase() === "tell" && tokens.length > 3) {
-          // leave messages
-          var name = tokens[2].toLowerCase(),
-              newMessage = tokens.slice(1).join(" ");
-          if (typeof messages[name] === "undefined") {
-            messages[name] = [];
-          }
-          messages[name].push({
-            sender : nick,
-            message : newMessage,
-            date : Date.now()
-          });
-          db.save(messages, function (res) {
-            if (res.ok) {
-              say(nick + ": Okay");
-            } else {
-              console.error(res.error);
-            }
-          });
-        }
-        break;
-      case ">":
-        if (msg.substr(0, 10) === "> implying") {
-          say(">implying " + nick + " isn't a faggot");
-        }
-        break;
-      case ">implying":
+      break;
+    case ">":
+      if (msg.substr(0, 10) === "> implying") {
         say(">implying " + nick + " isn't a faggot");
-        break;
       }
+      break;
+    case ">implying":
+      say(">implying " + nick + " isn't a faggot");
+      break;
     }
+
   }
 });
 
