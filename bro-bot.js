@@ -278,9 +278,9 @@ client.addListener("message" + config.channel, function (nick, msg) {
     // Special commands OMG
     case "zalgo":
       if (toAnotherUser) {
-        say(prefix + "H̕͞͡E̡͘͞͝ ̶C̸͢O҉̢͘͠M̴͢͡͡E̡͟͢T҉̴͘H̸̡̧̛");  
+        say(prefix + "H̕͞͡E̡͘͞͝ ̶C̸͢O҉̢͘͠M̴͢͡͡E̡͟͢T҉̴͘H̸̡̧̛");  
       } else {
-        say("H̕͞͡E̡͘͞͝ ̶C̸͢O҉̢͘͠M̴͢͡͡E̡͟͢T҉̴͘H̸̡̧̛");  
+        say("H̕͞͡E̡͘͞͝ ̶C̸͢O҉̢͘͠M̴͢͡͡E̡͟͢T҉̴͘H̸̡̧̛");  
       }
       break;
     case "flip":
@@ -321,14 +321,6 @@ client.addListener("message" + config.channel, function (nick, msg) {
           }
         });
       }
-      break;
-    case ">":
-      if (msg.substr(0, 10) === "> implying") {
-        say(">implying " + nick + " isn't a faggot");
-      }
-      break;
-    case ">implying":
-      say(">implying " + nick + " isn't a faggot");
       break;
     }
 
