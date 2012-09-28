@@ -18,7 +18,7 @@ var console      = require("console"),
     config       = require("./config");
 
 // Globals
-var VERSION    = "Bro-Bot Version 1.0.0",                 // Version String
+var VERSION    = "Bro-Bot Version 1.0.1",                 // Version String
     server     = new sofa.Server({ host : "127.0.0.1" }), // CouchDB server
     db         = new sofa.Database(server, "bro-bot"),    // CouchDB Database
     s          = new Sandbox(),
@@ -69,6 +69,119 @@ function say (msg) {
     }
 }
 
+// Create HTTP symbol lookup table and replace HTML codes
+function makeLegible(t) {
+    var trans = {
+	"€"  : "&euro;",
+	" "  : "&nbsp;",
+	"\"" : "&quot;",
+	"&"  : "&amp;",
+	"<"  : "&lt;",
+	">"  : "&gt;",
+	"¡"  : "&iexcl;",
+	"¢"  : "&cent;",
+	"£"  : "&pound;",
+	"¤"  : "&curren;",
+	"¥"  : "&yen;",
+	"¦"  : "&brvbar;",
+	"§"  : "&sect;",
+	"¨"  : "&uml;",
+	"©"  : "&copy;",
+	"ª"  : "&ordf;",
+	"¬"  : "&not;",
+	"­"  : "&shy;",
+	"®"  : "&reg;",
+	"¯"  : "&macr;",
+	"°"  : "&deg;",
+	"±"  : "&plusmn;",
+	"²"  : "&sup2;",
+	"³"  : "&sup3;",
+	"´"  : "&acute;",
+	"µ"  : "&micro;",
+	"¶"  : "&para;",
+	"·"  : "&middot;",
+	"¸"  : "&cedil;",
+	"¹"  : "&sup1;",
+	"º"  : "&ordm;",
+	"»"  : "&raquo;",
+	"¼"  : "&frac14;",
+	"½"  : "&frac12;",
+	"¾"  : "&frac34;",
+	"¿"  : "&iquest;",
+	"À"  : "&Agrave;",
+	"Á"  : "&Aacute;",
+	"Â"  : "&Acirc;",
+	"Ã"  : "&Atilde;",
+	"Ä"  : "&Auml;",
+	"Å"  : "&Aring;",
+	"Æ"  : "&AElig;",
+	"Ç"  : "&Ccedil;",
+	"È"  : "&Egrave;",
+	"É"  : "&Eacute;",
+	"Ê"  : "&Ecirc;",
+	"Ë"  : "&Euml;",
+	"Ì"  : "&Igrave;",
+	"Í"  : "&Iacute;",
+	"Î"  : "&Icirc;",
+	"Ï"  : "&Iuml;",
+	"Ð"  : "&ETH;",
+	"Ñ"  : "&Ntilde;",
+	"Ò"  : "&Ograve;",
+	"Ó"  : "&Oacute;",
+	"Ô"  : "&Ocirc;",
+	"Õ"  : "&Otilde;",
+	"Ö"  : "&Ouml;",
+	"×"  : "&times;",
+	"Ø"  : "&Oslash;",
+	"Ù"  : "&Ugrave;",
+	"Ú"  : "&Uacute;",
+	"Û"  : "&Ucirc;",
+	"Ü"  : "&Uuml;",
+	"Ý"  : "&Yacute;",
+	"Þ"  : "&THORN;",
+	"ß"  : "&szlig;",
+	"à"  : "&agrave;",
+	"á"  : "&aacute;",
+	"â"  : "&acirc;",
+	"ã"  : "&atilde;",
+	"ä"  : "&auml;",
+	"å"  : "&aring;",
+	"æ"  : "&aelig;",
+	"ç"  : "&ccedil;",
+	"è"  : "&egrave;",
+	"é"  : "&eacute;",
+	"ê"  : "&ecirc;",
+	"ë"  : "&euml;",
+	"ì"  : "&igrave;",
+	"í"  : "&iacute;",
+	"î"  : "&icirc;",
+	"ï"  : "&iuml;",
+	"ð"  : "&eth;",
+	"ñ"  : "&ntilde;",
+	"ò"  : "&ograve;",
+	"ó"  : "&oacute;",
+	"ô"  : "&ocirc;",
+	"õ"  : "&otilde;",
+	"ö"  : "&ouml;",
+	"÷"  : "&divide;",
+	"ø"  : "&oslash;",
+	"ù"  : "&ugrave;",
+	"ú"  : "&uacute;",
+	"û"  : "&ucirc;",
+	"ü"  : "&uuml;",
+	"ý"  : "&yacute;",
+	"þ"  : "&thorn;"
+    };
+    var title = t;
+    for (var symb in trans) {
+	if (trans.hasOwnProperty(symb)) {
+	    title = title.replace(trans[symb], symb);
+	}
+    }
+    return title;
+	    
+}
+
 // Follow a URL to output it's html <title>
 function handleURL(u) {
     var urlObject = url.parse(u),
@@ -87,7 +200,7 @@ function handleURL(u) {
                 title = titleMatch.exec(html);
                 if (title !== null) {
                     title = title[1].trim().replace(/[\t\r\n]+/g, " ");
-                    say(title);
+                    say(makeLegible(title));
                 }
             });
         }
@@ -96,6 +209,7 @@ function handleURL(u) {
         console.error("        " + e);
     });
 }
+ 
 
 // Error Listener
 client.addListener("error", function (error) {
